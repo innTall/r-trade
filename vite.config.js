@@ -15,20 +15,26 @@ export default defineConfig({
       manifest: {
         name: "R-Trade",
         short_name: "R-Trade",
-        description: "Trading app",
+        description: "RM trading app",
         theme_color: "#000000",
         background_color: "#000000",
+        display: "standalone",
         start_url: "/",
         scope: "/",
         icons: [
           {src: "pwa-192x192.png", sizes: "192x192", type: "image/png"},
-          {src: "pwa-512x512.png", sizes: "512x512", type: "image/png"}
+          {src: "pwa-512x512.png", sizes: "512x512", type: "image/png"},
+          {src: "mask-icon.png", sizes: "1024x1024", type: "maskable"}
         ]
       },
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true
+      },
+      devOptions: {
+        enabled: true,
+        disableDevLogs: true // hide warnings in dev
       }
     })
   ],
@@ -41,5 +47,8 @@ export default defineConfig({
     proxy: {
       "/.netlify/functions": "http://localhost:8888"
     }
+  },
+  build: {
+    sourcemap: false
   }
 });

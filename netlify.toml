@@ -4,7 +4,7 @@
   functions = "netlify/functions"
 
 [dev]
-  command = "pnpm run netlify:dev"
+  command = "pnpm run dev"
   port = 8888
   targetPort = 5173
   framework = "#custom"
