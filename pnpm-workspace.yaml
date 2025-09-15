@@ -1,3 +1,9 @@
 ignoredBuiltDependencies:
+  - '@parcel/watcher'
   - esbuild
+  - unix-dgram
   - vue-demi
+
+onlyBuiltDependencies:
+  - netlify-cli
+  - sharp

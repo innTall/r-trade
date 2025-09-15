@@ -10,3 +10,16 @@ const pinia = createPinia();
 
 pinia.use(piniaPluginPersistedstate);
 app.use(pinia).use(router).mount("#app");
+
+// --- PWA auto-update ---
+import { registerSW } from "virtual:pwa-register";
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    updateSW(true); // activate new SW
+    window.location.reload(); // reload app
+  },
+  onOfflineReady() {
+    console.log("App ready to work offline");
+  }
+});
