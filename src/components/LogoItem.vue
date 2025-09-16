@@ -7,12 +7,12 @@
 			<img src="/icon.png" alt="Logo" class="h-10 w-10" />
 		</RouterLink>
 		<div class="text-white">
-			<p class="text-sm text-right">
+			<p class="text-sm text-left">
 				<strong>
-					<span>R-Trade</span>
+					<span>RM-Trade</span>
 				</strong>
 				<br>
-				<small>Trade is easy!</small>
+				<small>Risk in Check!</small>
 			</p>
 		</div>
 	</div>
