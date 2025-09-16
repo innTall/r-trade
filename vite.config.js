@@ -18,8 +18,8 @@ export default defineConfig({
         "apple-touch-icon.png"
       ],
       manifest: {
-        name: "R-Trade",
-        short_name: "R-Trade",
+        name: "RM-Trade",
+        short_name: "RM-Trade",
         description: "RM trading app",
         theme_color: "#000000",
         background_color: "#000000",

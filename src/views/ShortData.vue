@@ -16,8 +16,18 @@ function clearAllShort() {
 	store.S_comment = "";
 }
 
-async function sendShort() {
+async function sendTelegram() {
 	await sendTelegramMessage(shortMessage.value);
+}
+
+async function sendBingx() {
+	console.log("Send to BingX:", longMessage.value);
+	// 🔥 later: real API integration
+}
+
+async function sendArchive() {
+	console.log("Archive trade:", longMessage.value);
+	// 🔥 later: save to local DB / Netlify DB
 }
 </script>
 
@@ -26,12 +36,24 @@ async function sendShort() {
 		<!-- Header -->
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold text-red-400">Short Trade</h2>
-			<div class="flex gap-2">
-				<button @click="sendShort" class="px-3 py-1 text-sm bg-red-700 hover:bg-red-600 rounded-lg">
-					Send 📤
+			<div class="flex gap-6">
+				<!-- Telegram -->
+				<button @click="sendTelegram" class="w-6 h-6">
+					<img src="/logo/telegram.png" alt="Telegram" class="w-6 h-6 object-contain" />
 				</button>
+
+				<!-- BingX -->
+				<button @click="sendBingx" class="w-6 h-6">
+					<img src="/logo/bingx.png" alt="BingX" class="w-6 h-6 object-contain" />
+				</button>
+
+				<!-- Archive -->
+				<button @click="sendArchive" class="w-6 h-6">
+					<img src="/logo/archive.png" alt="Archive" class="w-6 h-6 object-contain" />
+				</button>
+
 				<button @click="clearAllShort" class="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg">
-					Clear All 🧹
+					All 🧹
 				</button>
 			</div>
 		</div>
@@ -122,10 +144,6 @@ async function sendShort() {
 		<input v-model="store.S_comment" type="text" placeholder="Add note..." class="w-full mt-3 p-2 rounded-md bg-gray-800 border border-gray-600 text-gray-200
              focus:outline-none focus:ring-2 focus:ring-yellow-500" />
 
-		<!-- Telegram preview -->
-		<div class="mt-4 bg-gray-900 p-3 rounded-lg">
-			<pre class="whitespace-pre-wrap text-sm">{{ shortMessage }}</pre>
-		</div>
 	</div>
 </template>
 <style scoped></style>
