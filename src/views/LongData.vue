@@ -2,6 +2,7 @@
 import { useTradeStore } from "../stores/store.js";
 import { useTradeCalc } from "../composables/useTradeCalc.js";
 import { sendTelegramMessage } from "../composables/useTelegram.js";
+import TradingViewChart from "@/components/TradingViewChart.vue"; // add component
 
 const store = useTradeStore();
 const { L1, L2, L3, L5, L10, L11, longMessage, longErrors, a4 } = useTradeCalc();
@@ -32,7 +33,7 @@ async function sendArchive() {
 </script>
 
 <template>
-	<div class="p-4 text-gray-100">
+	<div class="flex flex-col h-full p-4 text-gray-100">
 		<!-- Header -->
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold text-green-400">Long Trade</h2>
@@ -144,6 +145,10 @@ async function sendArchive() {
 		<input v-model="store.L_comment" type="text" placeholder="Add note..." class="w-full mt-3 p-2 rounded-md bg-gray-800 border border-gray-600 text-gray-200
              focus:outline-none focus:ring-2 focus:ring-yellow-500" />
 
+		<!-- Chart fills remaining space -->
+		<div class="flex-1 min-h-0 mb-12 mt-2">
+			<TradingViewChart v-if="store.L_symbol" :symbol="`BINGX:${store.L_symbol}USDT.P`" class="w-full h-full" />
+		</div><!-- TradingView Chart -->
 	</div>
 </template>
 <style scoped></style>
