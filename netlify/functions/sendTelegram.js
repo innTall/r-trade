@@ -16,6 +16,13 @@ export async function handler(event) {
     const BOT = process.env.TELEGRAM_BOT_TOKEN;
     const CHAT = process.env.TELEGRAM_CHAT_ID;
 
+    // 🔥 Debug log — check what env vars are actually being used
+    console.log(
+      "DEBUG TELEGRAM_BOT_TOKEN (first 10 chars):",
+      BOT ? BOT.slice(0, 10) + "..." : "MISSING"
+    );
+    console.log("DEBUG TELEGRAM_CHAT_ID:", CHAT || "MISSING");
+
     if (!BOT || !CHAT) {
       return {
         statusCode: 500,
