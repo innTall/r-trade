@@ -10,23 +10,35 @@ export async function handler(event) {
   try {
     const body = JSON.parse(event.body || "{}");
     const text = body.text || "";
-    if (!text)
-      return {statusCode: 400, body: JSON.stringify({error: "Missing text"})};
+    const key = body.key || "";
+
+    if (!text) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({error: "Missing text"})
+      };
+    }
 
     const BOT = process.env.TELEGRAM_BOT_TOKEN;
     const CHAT = process.env.TELEGRAM_CHAT_ID;
 
-    // 🔥 Debug log — check what env vars are actually being used
-    console.log(
-      "DEBUG TELEGRAM_BOT_TOKEN (first 10 chars):",
-      BOT ? BOT.slice(0, 10) + "..." : "MISSING"
-    );
-    console.log("DEBUG TELEGRAM_CHAT_ID:", CHAT || "MISSING");
+    // 🔍 Debugging logs
+    console.log("DEBUG sendTelegram → incoming request:", {
+      url: event.rawUrl,
+      origin: event.headers.origin,
+      method: event.httpMethod,
+      hasText: !!text,
+      keySent: key ? "yes" : "no",
+      BOT_preview: BOT ? BOT.substring(0, 8) + "..." : "missing",
+      CHAT
+    });
 
     if (!BOT || !CHAT) {
       return {
         statusCode: 500,
-        body: JSON.stringify({error: "Telegram env vars missing on server"})
+        body: JSON.stringify({
+          error: "Telegram env vars missing on server"
+        })
       };
     }
 
@@ -42,11 +54,19 @@ export async function handler(event) {
     });
 
     const data = await res.json();
+
     if (!res.ok) {
-      return {statusCode: 500, body: JSON.stringify({ok: false, error: data})};
+      console.error("Telegram API error:", data);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ok: false, error: data})
+      };
     }
 
-    return {statusCode: 200, body: JSON.stringify({ok: true, result: data})};
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ok: true, result: data})
+    };
   } catch (err) {
     console.error("sendTelegram handler error:", err);
     return {
