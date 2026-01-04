@@ -27,6 +27,24 @@ export function useTradeCalc() {
       : 0
   );
 
+  const L12 = computed(() =>
+    store.L6 != null && store.L8 != null
+      ? +((store.L8 / store.L6 - 1) * 100).toFixed(1)
+      : 0
+  );
+
+  const L13 = computed(() =>
+    store.L6 != null && store.L9 != null
+      ? +((store.L9 / store.L6 - 1) * 100).toFixed(1)
+      : 0
+  );
+
+  const L14 = computed(() =>
+    store.L6 != null && store.L7 != null
+      ? +((store.L7 / store.L6 - 1) * 100).toFixed(1)
+      : 0
+  );
+
   // Validation rules (Long)
   const longErrors = computed(() => {
     const errors = {};
@@ -51,6 +69,24 @@ export function useTradeCalc() {
   const S5 = computed(() =>
     store.S6 != null && store.S7 != null
       ? +(((a4.value / (store.S7 - store.S6)) * store.S6) / store.S4).toFixed(1)
+      : 0
+  );
+
+  const S12 = computed(() =>
+    store.S6 != null && store.S8 != null
+      ? +((1 - store.S8 / store.S6) * 100).toFixed(1)
+      : 0
+  );
+
+  const S13 = computed(() =>
+    store.S6 != null && store.S9 != null
+      ? +((1 - store.S9 / store.S6) * 100).toFixed(1)
+      : 0
+  );
+
+  const S14 = computed(() =>
+    store.S6 != null && store.S7 != null
+      ? +((1 - store.S7 / store.S6) * 100).toFixed(1)
       : 0
   );
 
@@ -127,6 +163,9 @@ export function useTradeCalc() {
     L5,
     L10,
     L11,
+    L12,
+    L13,
+    L14,
     longMessage,
     longErrors,
     longFixation,
@@ -137,6 +176,9 @@ export function useTradeCalc() {
     S5,
     S10,
     S11,
+    S12,
+    S13,
+    S14,
     shortMessage,
     shortErrors,
     shortFixation

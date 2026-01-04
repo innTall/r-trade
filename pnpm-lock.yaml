@@ -45,6 +45,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
+      baseline-browser-mapping:
+        specifier: ^2.9.11
+        version: 2.9.11
       postcss:
         specifier: ^8.4.49
         version: 8.4.49
@@ -2222,6 +2225,10 @@ packages:
 
   baseline-browser-mapping@2.8.3:
     resolution: {integrity: sha512-mcE+Wr2CAhHNWxXN/DdTI+n4gsPc5QpXpWnyCQWiQYIYZX+ZMJ8juXZgjRa/0/YPJo/NSsgW15/YgmI4nbysYw==}
+    hasBin: true
+
+  baseline-browser-mapping@2.9.11:
+    resolution: {integrity: sha512-Sg0xJUNDU1sJNGdfGWhVHX0kkZ+HWcvmVymJbj6NSgZZmW/8S9Y2HQ5euytnIgakgxN6papOAWiwDo1ctFDcoQ==}
     hasBin: true
 
   before-after-hook@3.0.2:
@@ -8308,6 +8315,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.8.3: {}
+
+  baseline-browser-mapping@2.9.11: {}
 
   before-after-hook@3.0.2: {}
 

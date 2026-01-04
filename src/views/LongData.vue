@@ -5,7 +5,7 @@ import { sendTelegramMessage } from "../composables/useTelegram.js";
 import TradingViewChart from "@/components/TradingViewChart.vue"; // add component
 
 const store = useTradeStore();
-const { L1, L2, L3, L5, L10, L11, longMessage, longErrors, a4 } = useTradeCalc();
+const { L1, L2, L3, L5, L10, L11, L12, L13, L14, longMessage, longErrors, a4 } = useTradeCalc();
 
 function clearAllLong() {
 	store.L_symbol = "";
@@ -135,14 +135,16 @@ async function sendArchive() {
 		</div>
 
 		<!-- Data row -->
-		<div class="flex mt-4 text-gray-400 text-sm gap-3">
-			<p># Amount - {{ L1 }}</p>
-			<p># LevMax - {{ L3 }}</p>
-			<p># RR - {{ L11 }}</p>
+		<div class="flex mt-4 text-gray-400 text-sm gap-2">
+			<p>*TP1_{{ L12 }}%</p>
+			<p>*TP2_{{ L13 }}%</p>
+			<p>*SL_{{ L14 }}%</p>
+			<p>*xMax_{{ L3 }}</p>
+			<p>*RR_{{ L11 }}</p>
 		</div>
 
 		<!-- Comment / Notes -->
-		<input v-model="store.L_comment" type="text" placeholder="Add note..." class="w-full mt-3 p-2 rounded-md bg-gray-800 border border-gray-600 text-gray-200
+		<input v-model="store.L_comment" type="text" placeholder="Entry model..." class="w-full mt-3 p-2 rounded-md bg-gray-800 border border-gray-600 text-gray-200
              focus:outline-none focus:ring-2 focus:ring-yellow-500" />
 
 		<!-- Chart fills remaining space -->
