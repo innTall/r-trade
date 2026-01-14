@@ -47,19 +47,19 @@ export function useTradeCalc() {
 
   const L15 = computed(() =>
     store.L6 != null && store.L8 != null
-      ? +((store.L8 - store.L6) * store.L1 / 2).toFixed(1)
+      ? +((store.L8 - store.L6) * L1.value / 2).toFixed(1)
       : 0
   );
 
   const L16 = computed(() =>
     store.L6 != null && store.L9 != null
-      ? +((store.L9 - store.L6) * store.L1 / 2).toFixed(1)
+      ? +((store.L9 - store.L6) * L1.value / 2).toFixed(1)
       : 0
   );
 
   const L17 = computed(() =>
     store.L6 != null && store.L7 != null
-      ? +((store.L7 - store.L6) * store.L1).toFixed(1)
+      ? +((store.L7 - store.L6) * L1.value).toFixed(1)
       : 0
   );
 
@@ -110,19 +110,19 @@ export function useTradeCalc() {
 
   const S15 = computed(() =>
     store.S6 != null && store.S8 != null
-      ? +((store.S8 - store.S6) * store.S1 / 2).toFixed(1)
+      ? +((store.S8 - store.S6) * S1.value / 2).toFixed(1)
       : 0
   );
 
   const S16 = computed(() =>
     store.S6 != null && store.S9 != null
-      ? +((store.S9 - store.S6) * store.S1 / 2).toFixed(1)
+      ? +((store.S9 - store.S6) * S1.value / 2).toFixed(1)
       : 0
   );
 
   const S17 = computed(() =>
     store.S6 != null && store.S7 != null
-      ? +((store.S7 - store.S6) * store.S1).toFixed(1)
+      ? +((store.S7 - store.S6) * S1.value).toFixed(1)
       : 0
   );
 
