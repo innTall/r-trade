@@ -45,6 +45,24 @@ export function useTradeCalc() {
       : 0
   );
 
+  const L15 = computed(() =>
+    store.L6 != null && store.L8 != null
+      ? +((store.L8 - store.L6) * store.L1 / 2).toFixed(1)
+      : 0
+  );
+
+  const L16 = computed(() =>
+    store.L6 != null && store.L9 != null
+      ? +((store.L9 - store.L6) * store.L1 / 2).toFixed(1)
+      : 0
+  );
+
+  const L17 = computed(() =>
+    store.L6 != null && store.L7 != null
+      ? +((store.L7 - store.L6) * store.L1).toFixed(1)
+      : 0
+  );
+
   // Validation rules (Long)
   const longErrors = computed(() => {
     const errors = {};
@@ -87,6 +105,24 @@ export function useTradeCalc() {
   const S14 = computed(() =>
     store.S6 != null && store.S7 != null
       ? +((1 - store.S7 / store.S6) * 100).toFixed(1)
+      : 0
+  );
+
+  const S15 = computed(() =>
+    store.S6 != null && store.S8 != null
+      ? +((store.S8 - store.S6) * store.S1 / 2).toFixed(1)
+      : 0
+  );
+
+  const S16 = computed(() =>
+    store.S6 != null && store.S9 != null
+      ? +((store.S9 - store.S6) * store.S1 / 2).toFixed(1)
+      : 0
+  );
+
+  const S17 = computed(() =>
+    store.S6 != null && store.S7 != null
+      ? +((store.S7 - store.S6) * store.S1).toFixed(1)
       : 0
   );
 
@@ -136,21 +172,25 @@ export function useTradeCalc() {
   const longMessage = computed(() => {
     const commentText = store.L_comment?.trim();
     return `
-  🟢 ${store.L_symbol} LONG => x${store.L4} * ${L5.value} $ = ${L2.value} $
-  ✅ TP1: ${store.L8} | ✅ TP2: ${store.L9}
-  💰 Buy: ${store.L6}
-  ❌ SL: ${store.L7}
-📌${commentText ? commentText : ""}`.trim();
+  🟢 ${store.L_symbol} => x${store.L4} * ${L5.value} $ = ${L2.value} $
+  ✅ TP2: ${store.L9} => ${L13.value} % => ${L16.value} $
+  ✅ TP1: ${store.L8} => ${L12.value} % => ${L15.value} $
+  ENTRY: ${store.L6} => RR ${L11.value}
+  ❌ SL: ${store.L7} => ${L14.value} % => ${L17.value} $
+  ------------------------------------
+📝 ${commentText ? commentText : ""}`.trim();
   });
 
   const shortMessage = computed(() => {
     const commentText = store.S_comment?.trim();
     return `
-  🔴 ${store.S_symbol} SHORT => x${store.S4} * ${S5.value} $ = ${S2.value} $
-  ❌ SL: ${store.S7}
-  💰 Sell: ${store.S6}
-  ✅ TP1: ${store.S8} | ✅ TP2: ${store.S9}
-📌${commentText ? commentText : ""}`.trim();
+  🔴 ${store.S_symbol} => x${store.S4} * ${S5.value} $ = ${S2.value} $
+  ❌ SL: ${store.S7} => ${S14.value} % => ${S17.value} $
+  ENTRY: ${store.S6} => RR ${S11.value}
+  ✅ TP1: ${store.S8} => ${S12.value} % => ${S15.value} $
+  ✅ TP2: ${store.S9} => ${S13.value} % => ${S16.value} $
+  ------------------------------------
+📝 ${commentText ? commentText : ""}`.trim();
   });
 
   return {
@@ -166,6 +206,9 @@ export function useTradeCalc() {
     L12,
     L13,
     L14,
+    L15,
+    L16,
+    L17,
     longMessage,
     longErrors,
     longFixation,
@@ -179,6 +222,9 @@ export function useTradeCalc() {
     S12,
     S13,
     S14,
+    S15,
+    S16,
+    S17,
     shortMessage,
     shortErrors,
     shortFixation

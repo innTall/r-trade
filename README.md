@@ -6,7 +6,15 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 Algorithm data:
 src/composables/useTradeCalc.js
-Add a calculation algorithm for long positions:
+-------
+*** Imputation panel:
+- a1 Deposit - int, $
+- a2 Risk - float, %
+- a3 RR - float, %
+- a4 SL - round(a1*a2,1), $
+- a5 TP - round(a4*a3,1), $
+-------
+*** Add a calculation algorithm for long positions:
 - text input (for symbols)
 - L1 - round(a4/(L6-L7),3) - Active
 - L2 - round(L1*L6,1) - Sum
@@ -22,6 +30,9 @@ Add a calculation algorithm for long positions:
 - L12 - TP1, %
 - L13 - TP2, %
 - L14 - SL, %
+- L15 - TP1, $
+- L16 - TP2, $
+- L17 - SL, $
 Add a calculation algorithm for Short positions:
 - text input (for symbols)
 - S1 - round(a4/(S7-S6),3) - Active
@@ -38,3 +49,6 @@ Add a calculation algorithm for Short positions:
 - S12 - TP1, %
 - S13 - TP2, %
 - S14 - SL, %
+- S15 - TP1, $
+- S16 - TP2, $
+- S17 - SL, $
