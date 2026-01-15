@@ -110,19 +110,19 @@ export function useTradeCalc() {
 
   const S15 = computed(() =>
     store.S6 != null && store.S8 != null
-      ? +((store.S8 - store.S6) * S1.value / 2).toFixed(1)
+      ? +((store.S6 - store.S8) * S1.value / 2).toFixed(1)
       : 0
   );
 
   const S16 = computed(() =>
     store.S6 != null && store.S9 != null
-      ? +((store.S9 - store.S6) * S1.value / 2).toFixed(1)
+      ? +((store.S6 - store.S9) * S1.value / 2).toFixed(1)
       : 0
   );
 
   const S17 = computed(() =>
     store.S6 != null && store.S7 != null
-      ? +((store.S7 - store.S6) * S1.value).toFixed(1)
+      ? +((store.S6 - store.S7) * S1.value).toFixed(1)
       : 0
   );
 
