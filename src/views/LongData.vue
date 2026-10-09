@@ -1,10 +1,17 @@
 <script setup>
+import { ref } from "vue";
 import { useTradeStore } from "../stores/store.js";
 import { useTradeCalc } from "../composables/useTradeCalc.js";
 import { sendTelegramMessage } from "../composables/useTelegram.js";
 import TradingViewChart from "@/components/TradingViewChart.vue"; // add component
 
 const store = useTradeStore();
+
+const confirmedLongSymbol = ref("");
+function confirmLongSymbol() {
+  confirmedLongSymbol.value = store.L_symbol;
+}
+
 const { L1, L2, L3, L5, L10, L11, L12, L13, L14, longMessage, longErrors, a4 } = useTradeCalc();
 
 function clearAllLong() {
@@ -112,8 +119,8 @@ async function sendArchive() {
 				<!-- Symbol -->
 				<div class="relative">
 					<input v-model="store.L_symbol" type="text" placeholder="SYMBOL" class="w-full rounded-md bg-gray-800 border border-gray-600 px-3 py-2 pr-8
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500"
-						@input="store.L_symbol = store.L_symbol.toUpperCase()" />
+           focus:outline-none focus:ring-2 focus:ring-indigo-500"
+						@input="store.L_symbol = store.L_symbol.toUpperCase()" @blur="confirmLongSymbol" />
 					<button v-if="store.L_symbol" @click="store.L_symbol = ''"
 						class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
 						🧹
@@ -149,7 +156,11 @@ async function sendArchive() {
 
 		<!-- Chart fills remaining space -->
 		<div class="flex-1 min-h-0 mb-12 mt-2">
-			<TradingViewChart v-if="store.L_symbol" :symbol="`BINGX:${store.L_symbol}USDT.P`" class="w-full h-full" />
+			<TradingViewChart 
+				v-if="confirmedLongSymbol"
+				:key="confirmedLongSymbol" 
+				:symbol="`BINGX:${confirmedLongSymbol}USDT.P`"
+				class="w-full h-full" />
 		</div><!-- TradingView Chart -->
 	</div>
 </template>

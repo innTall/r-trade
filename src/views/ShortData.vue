@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from "vue";
 import { useTradeStore } from "../stores/store.js";
 import { useTradeCalc } from "../composables/useTradeCalc.js";
 import { sendTelegramMessage } from "../composables/useTelegram.js";
@@ -6,6 +7,11 @@ import TradingViewChart from "@/components/TradingViewChart.vue"; // add compone
 
 const store = useTradeStore();
 const { S1, S2, S3, S5, S10, S11, S12, S13, S14, shortMessage, shortErrors, a4 } = useTradeCalc();
+
+const confirmedShortSymbol = ref("");
+function confirmShortSymbol() {
+	confirmedShortSymbol.value = store.S_symbol;
+}
 
 function clearAllShort() {
 	store.S_symbol = "";
@@ -22,12 +28,12 @@ async function sendTelegram() {
 }
 
 async function sendBingx() {
-	console.log("Send to BingX:", longMessage.value);
+	console.log("Send to BingX:", shortMessage.value);
 	// 🔥 later: real API integration
 }
 
 async function sendArchive() {
-	console.log("Archive trade:", longMessage.value);
+	console.log("Archive trade:", shortMessage.value);
 	// 🔥 later: save to local DB / Netlify DB
 }
 </script>
@@ -112,8 +118,8 @@ async function sendArchive() {
 				<!-- Symbol -->
 				<div class="relative">
 					<input v-model="store.S_symbol" type="text" placeholder="SYMBOL" class="w-full rounded-md bg-gray-800 border border-gray-600 px-3 py-2 pr-8
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500"
-						@input="store.S_symbol = store.S_symbol.toUpperCase()" />
+           focus:outline-none focus:ring-2 focus:ring-indigo-500"
+						@input="store.S_symbol = store.S_symbol.toUpperCase()" @blur="confirmShortSymbol" />
 					<button v-if="store.S_symbol" @click="store.S_symbol = ''"
 						class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
 						🧹
@@ -149,7 +155,11 @@ async function sendArchive() {
 
 		<!-- Chart fills remaining space -->
 		<div class="flex-1 min-h-0 mb-12 mt-2">
-			<TradingViewChart v-if="store.S_symbol" :symbol="`BINGX:${store.S_symbol}USDT.P`" class="w-full h-full" />
+			<TradingViewChart 
+				v-if="confirmedShortSymbol" 
+				:key="confirmedShortSymbol" 
+				:symbol="`BINGX:${confirmedShortSymbol}USDT.P`"
+				class="w-full h-full" />
 		</div><!-- TradingView Chart -->
 	</div>
 </template>
