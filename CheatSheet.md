@@ -120,7 +120,7 @@ Netlify автоматически делает новый deploy
 Команда:
 
 ```powershell
-pnpm run deploy
+pnpm deploy
 ```
 
 относится к GitHub Pages (`gh-pages -d dist`) и **не является обычным способом deploy в Netlify**.

@@ -5,7 +5,7 @@ export const useTradeStore = defineStore(
   "trade",
   () => {
     // --- Global inputs ---
-    const a1 = ref(100); // Deposit ($)
+    const balance = ref(null); // Confirmed BingX USDT balance
     const a2 = ref(1); // Risk %
 
     // --- Long trade inputs ---
@@ -31,7 +31,7 @@ export const useTradeStore = defineStore(
 
     // ✅ Must return a single object
     return {
-      a1,
+      balance,
       a2,
       L_symbol,
       L4,
@@ -53,7 +53,7 @@ export const useTradeStore = defineStore(
   {
     // ✅ persist config must be in defineStore options, not inside return
     persist: {
-      paths: ["a1", "a2", "L_comment", "S_comment"] // only global inputs persist
+      omit: ["a1", "balance"]
     }
   }
 );

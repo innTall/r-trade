@@ -6,7 +6,7 @@ export function useTradeCalc() {
 
   // --- Global ---
   const a4 = computed(
-    () => Math.round(((store.a1 * store.a2) / 100) * 10) / 10
+    () => Math.round(((store.balance * store.a2) / 100) * 10) / 10
   );
 
   // --- Long ---

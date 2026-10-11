@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import SettingsModal from "./SettingsModal.vue";
 import LogoItem from "./LogoItem.vue";
+import BalanceItem from "./BalanceItem.vue";
 import { CogIcon } from "@heroicons/vue/24/outline";
 import {
 	ArrowTrendingUpIcon as ArrowUpOutline,
@@ -19,11 +20,12 @@ const showSettings = ref(false);
 
 <template>
 	<nav
-		class="fixed bottom-0 left-0 right-0 h-14 bg-gray-800 border-t border-gray-700 shadow-md flex items-center justify-between px-2">
+		class="fixed bottom-0 left-0 right-0 h-14 bg-gray-800 border-t border-gray-700 shadow-md flex items-center justify-between gap-1 px-1">
 		<LogoItem />
+		<BalanceItem />
 
 		<!-- Settings -->
-		<div class="flex justify-between items-center gap-10 px-2">
+		<div class="flex justify-between items-center gap-1 px-1">
 			<button @click="showSettings = true">
 				<CogIcon class="w-6 h-6 text-gray-400 hover:text-white" />
 			</button>

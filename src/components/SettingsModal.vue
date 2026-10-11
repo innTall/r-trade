@@ -24,9 +24,10 @@ const emit = defineEmits(["close"]);
 
 			<div class="space-y-4">
 				<div class="flex items-center gap-2">
-					<label class="w-24 text-sm text-gray-300">Depo, $</label>
-					<input v-model.number="store.a1" type="number" placeholder="Deposit"
-						class="w-24 bg-gray-800 input-cell flex-1" />
+					<label class="w-24 text-sm text-gray-300">BingX, USDT</label>
+					<span class="text-sm text-gray-100">
+						{{ store.balance === null ? "Недоступен" : store.balance.toFixed(4) }}
+					</span>
 				</div>
 				<div class="flex items-center gap-2">
 					<label class="w-24 text-sm text-gray-300">Risk, %</label>
@@ -41,7 +42,8 @@ const emit = defineEmits(["close"]);
 
 				<div class="flex text-sm pt-2 gap-2 border-t border-gray-700">
 					<span class="text-red-400">SL, $:</span>
-					<span class="font-semibold text-red-400">{{ a4 }}</span>
+					<span v-if="store.balance !== null" class="font-semibold text-red-400">{{ a4 }}</span>
+					<span v-else class="text-gray-400">Недоступно без баланса BingX</span>
 				</div>
 			</div>
 		</div>
