@@ -24,6 +24,7 @@ pnpm install
 
 ```powershell
 pnpm dev
+pnpm netlify:dev
 ```
 
 Остановить сервер:
@@ -160,86 +161,6 @@ git ls-files --deleted
 - refactor;
 - optimization;
 - новые функции.
-
----
-
-## 9. Текущий подтверждённый bugfix
-
-### TradingView: `SOL → SUSDT`
-
-Причина:
-
-`LongData.vue` / `ShortData.vue` передают символ в `TradingViewChart.vue`.
-
-При вводе первого символа:
-
-```text
-S
-↓
-BINGX:SUSDT.P
-```
-
-TradingView widget создаётся в `onMounted()`, а изменение `props.symbol` после этого не обрабатывается.
-
-После исправления проверить:
-
-```text
-Long → SOL
-Short → SOL
-```
-
-Ожидаемый результат:
-
-```text
-BINGX:SOLUSDT.P
-```
-
-без переключения страницы/режима.
-
----
-
-## 10. Текущая функциональность проекта
-
-Уже существует:
-
-- Long / Short UI;
-- расчёт параметров сделки;
-- настройки депозита и риска;
-- Pinia state;
-- Telegram отправка;
-- TradingView chart;
-- PWA.
-
-Пока не реализовано:
-
-- реальная отправка ордера в BingX;
-- открытая позиция;
-- SL/TP management;
-- Break-even;
-- partial close;
-- управление остатком позиции;
-- полноценный trade journal / analytics.
-
----
-
-## 11. После bugfix
-
-Минимальный цикл проверки:
-
-```powershell
-pnpm build
-```
-
-Затем:
-
-1. проверить Long;
-2. проверить Short;
-3. проверить `SOL`;
-4. проверить Telegram;
-5. проверить остальные существующие функции;
-6. только после успешного теста — commit/push;
-7. дождаться Netlify deploy;
-8. проверить deployed PWA на телефоне.
 
 ---
 

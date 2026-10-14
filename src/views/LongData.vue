@@ -1,3 +1,4 @@
+<!--src/views/LongData.vue-->
 <script setup>
 import { ref } from "vue";
 import { useTradeStore } from "../stores/store.js";
@@ -46,23 +47,17 @@ async function sendArchive() {
 			<h2 class="text-xl font-bold text-green-400">Long Trade</h2>
 			<div class="flex gap-6">
 				<!-- Telegram -->
-				<button @click="sendTelegram" :disabled="store.balance === null"
-					:title="store.balance === null ? 'Доступно после загрузки баланса BingX' : undefined"
-					class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
+				<button @click="sendTelegram" class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
 					<img src="/logo/telegram.png" alt="Telegram" class="w-6 h-6 object-contain" />
 				</button>
 
 				<!-- BingX -->
-				<button @click="sendBingx" :disabled="store.balance === null"
-					:title="store.balance === null ? 'Доступно после загрузки баланса BingX' : undefined"
-					class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
+				<button @click="sendBingx" class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
 					<img src="/logo/bingx.png" alt="BingX" class="w-6 h-6 object-contain" />
 				</button>
 
 				<!-- Archive -->
-				<button @click="sendArchive" :disabled="store.balance === null"
-					:title="store.balance === null ? 'Доступно после загрузки баланса BingX' : undefined"
-					class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
+				<button @click="sendArchive" class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
 					<img src="/logo/archive.png" alt="Archive" class="w-6 h-6 object-contain" />
 				</button>
 
@@ -139,21 +134,16 @@ async function sendArchive() {
 
 				<!-- Calculated values -->
 				<div class="text-center space-y-1">
-					<p v-if="store.balance === null" class="text-sm text-yellow-400">
-						Расчёты недоступны: баланс BingX не подтверждён.
-					</p>
-					<template v-else>
-						<p class="text-sm font-bold">Margin - <span class="text-white">{{ L5 }}</span> $</p>
-						<p class="text-sm font-bold">Sum - <span class="text-white">{{ L2 }}</span> $</p>
-						<p class="text-sm font-bold text-green-400">Profit - {{ L10 }} $</p>
-						<p class="text-sm font-bold text-red-400">Loss - {{ a4 }} $</p>
-					</template>
+					<p class="text-sm font-bold">Margin - <span class="text-white">{{ L5 }}</span> $</p>
+					<p class="text-sm font-bold">Sum - <span class="text-white">{{ L2 }}</span> $</p>
+					<p class="text-sm font-bold text-green-400">Profit - {{ L10 }} $</p>
+					<p class="text-sm font-bold text-red-400">Loss - {{ a4 }} $</p>
 				</div>
 			</div>
 		</div>
 
 		<!-- Data row -->
-		<div v-if="store.balance !== null" class="flex mt-4 text-gray-400 text-sm gap-2">
+		<div class="flex mt-4 text-gray-400 text-sm gap-2">
 			<p>*TP1_{{ L12 }}%</p>
 			<p>*TP2_{{ L13 }}%</p>
 			<p>*SL_{{ L14 }}%</p>

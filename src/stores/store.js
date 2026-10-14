@@ -1,11 +1,19 @@
+// src/stores/store.js
 import {defineStore} from "pinia";
-import {ref} from "vue";
+import {computed, ref} from "vue";
+
+export const DEFAULT_CALCULATION_BALANCE = 1000;
 
 export const useTradeStore = defineStore(
   "trade",
   () => {
     // --- Global inputs ---
     const balance = ref(null); // Confirmed BingX USDT balance
+    const effectiveCalculationBalance = computed(() =>
+      Number.isFinite(balance.value)
+        ? balance.value
+        : DEFAULT_CALCULATION_BALANCE
+    );
     const a2 = ref(1); // Risk %
 
     // --- Long trade inputs ---
@@ -32,6 +40,7 @@ export const useTradeStore = defineStore(
     // ✅ Must return a single object
     return {
       balance,
+      effectiveCalculationBalance,
       a2,
       L_symbol,
       L4,

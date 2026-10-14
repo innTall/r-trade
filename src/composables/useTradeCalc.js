@@ -1,4 +1,5 @@
-import {computed} from "vue";
+// src/composables/useTradeCalc.js
+import { computed } from "vue";
 import {useTradeStore} from "../stores/store.js";
 
 export function useTradeCalc() {
@@ -6,7 +7,10 @@ export function useTradeCalc() {
 
   // --- Global ---
   const a4 = computed(
-    () => Math.round(((store.balance * store.a2) / 100) * 10) / 10
+    () =>
+      Math.round(
+        ((store.effectiveCalculationBalance * store.a2) / 100) * 10
+      ) / 10
   );
 
   // --- Long ---
