@@ -4,9 +4,11 @@ import { ref } from "vue";
 import { useTradeStore } from "../stores/store.js";
 import { useTradeCalc } from "../composables/useTradeCalc.js";
 import { sendTelegramMessage } from "../composables/useTelegram.js";
+import { useBingxOrder } from "../composables/useBingxOrder.js";
 import TradingViewChart from "@/components/TradingViewChart.vue"; // add component
 
 const store = useTradeStore();
+const { isLoading: isBingxLoading, sendOrderToBingx } = useBingxOrder();
 
 const confirmedLongSymbol = ref("");
 function confirmLongSymbol() {
@@ -30,8 +32,44 @@ async function sendTelegram() {
 }
 
 async function sendBingx() {
-	console.log("Send to BingX:", longMessage.value);
-	// later: real API integration
+	// Отладочный вывод в консоль, чтобы точно видеть состояние полей
+	console.log("Debug BingX click:", {
+		symbol: store.L_symbol,
+		buyPrice: store.L6,
+		sumL2: store.L2,
+		contractsL1: L1.value
+	});
+
+	// Смягчаем проверку: для отправки ордера критически нужны только Символ и Цена входа (Buy)
+	if (!store.L_symbol || !store.L6) {
+		alert("Заполните символ и цену входа (Buy) перед отправкой на BingX!");
+		return;
+	}
+
+	// Берем количество контрактов из L1 (из useTradeCalc) или вычисляем запасной вариант
+	const contracts = Number(L1.value) || (Number(store.L2 || 10) * Number(store.L4 || 25)) / Number(store.L6);
+
+	const symbolFormatted = store.L_symbol.includes("-")
+		? store.L_symbol.toUpperCase()
+		: `${store.L_symbol.toUpperCase()}-USDT`;
+
+	const orderParams = {
+		symbol: symbolFormatted,
+		side: "BUY",
+		price: store.L6,
+		quantity: Number(contracts).toFixed(3)
+	};
+
+	console.log("Sending order to BingX (payload):", orderParams);
+	const res = await sendOrderToBingx(orderParams);
+
+	if (res.success) {
+		console.log("Order placed successfully:", res.data);
+		alert("Ордер успешно размещен на BingX!");
+	} else {
+		console.error("BingX error code:", res.bingxCode, res.error);
+		alert(`Ошибка BingX [${res.bingxCode}]: ${res.error}`);
+	}
 }
 
 async function sendArchive() {
