@@ -12,30 +12,38 @@ export function useBingxOrder() {
     lastResult.value = null;
 
     try {
-      const response = await fetch("/.netlify/functions/placeBingxOrder", {
+      const response = await fetch("/.netlify/functions/placeBingxBuy", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(orderParams)
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        const message = `BingX function returned an invalid response (HTTP ${response.status})`;
+        error.value = message;
+        return {success: false, bingxCode: "INVALID_RESPONSE", error: message};
+      }
 
-      // Если сервер ответил успешно, но сама биржа вернула ошибку (success: false)
-      if (!response.ok || data.success === false) {
+      if (!data || typeof data !== "object" || !response.ok || data.success !== true) {
+        const message =
+          data?.error || data?.bingxMsg || `Failed to place order on BingX (HTTP ${response.status})`;
+        error.value = message;
         return {
           success: false,
-          bingxCode: data.bingxCode || "UNKNOWN",
-          error: data.error || data.bingxMsg || "Failed to place order on BingX"
+          bingxCode: data?.bingxCode || "UNKNOWN",
+          error: message
         };
       }
 
       lastResult.value = data.data;
       return {success: true, data: data.data};
     } catch (err) {
-      console.error("BingX Order Network Error:", err);
-      return {success: false, bingxCode: "NET_ERR", error: err.message};
+      const message = err instanceof Error ? err.message : "Network error while placing order";
+      error.value = message;
+      return {success: false, bingxCode: "NET_ERR", error: message};
     } finally {
       isLoading.value = false;
     }

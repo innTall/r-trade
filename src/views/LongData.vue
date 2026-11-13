@@ -5,21 +5,45 @@ import { useTradeStore } from "../stores/store.js";
 import { useTradeCalc } from "../composables/useTradeCalc.js";
 import { sendTelegramMessage } from "../composables/useTelegram.js";
 import { useBingxOrder } from "../composables/useBingxOrder.js";
-import TradingViewChart from "@/components/TradingViewChart.vue"; // add component
+import TradingViewChart from "@/components/TradingViewChart.vue";
 
 const store = useTradeStore();
 const { isLoading: isBingxLoading, sendOrderToBingx } = useBingxOrder();
 
 const confirmedLongSymbol = ref("");
 function confirmLongSymbol() {
-  confirmedLongSymbol.value = store.L_symbol;
+	confirmedLongSymbol.value = store.L_symbol;
 }
 
 const { L1, L2, L3, L5, L10, L11, L12, L13, L14, longMessage, longErrors, a4 } = useTradeCalc();
 
+function handleStopLossInput(event) {
+	const input = event.target;
+	const value = input.value;
+	const normalized = value.includes(",") && !value.includes(".") && value.indexOf(",") === value.lastIndexOf(",")
+		? value.replace(",", ".")
+		: value;
+	input.value = normalized;
+	store.L7 = normalized;
+}
+
+function parsePositiveNumber(value, label) {
+	const text = String(value ?? "").trim();
+	if (!/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(text)) {
+		return { error: `${label} must be a valid positive number.` };
+	}
+
+	const number = Number(text);
+	if (!Number.isFinite(number) || number <= 0) {
+		return { error: `${label} must be a valid positive number.` };
+	}
+
+	return { value: number };
+}
+
 function clearAllLong() {
 	store.L_symbol = "";
-	store.L4 = 25; // reset leverage
+	store.L4 = 25;
 	store.L6 = "";
 	store.L7 = "";
 	store.L8 = "";
@@ -32,49 +56,76 @@ async function sendTelegram() {
 }
 
 async function sendBingx() {
-	// Отладочный вывод в консоль, чтобы точно видеть состояние полей
-	console.log("Debug BingX click:", {
-		symbol: store.L_symbol,
-		buyPrice: store.L6,
-		sumL2: store.L2,
-		contractsL1: L1.value
-	});
+	if (isBingxLoading.value) return;
 
-	// Смягчаем проверку: для отправки ордера критически нужны только Символ и Цена входа (Buy)
-	if (!store.L_symbol || !store.L6) {
-		alert("Заполните символ и цену входа (Buy) перед отправкой на BingX!");
+	const symbol = String(store.L_symbol ?? "").trim();
+	if (!symbol) {
+		alert("Заполните символ перед отправкой на BingX.");
 		return;
 	}
 
-	// Берем количество контрактов из L1 (из useTradeCalc) или вычисляем запасной вариант
-	const contracts = Number(L1.value) || (Number(store.L2 || 10) * Number(store.L4 || 25)) / Number(store.L6);
+	const entryPriceResult = parsePositiveNumber(store.L6, "Цена входа");
+	if (entryPriceResult.error) {
+		alert(entryPriceResult.error);
+		return;
+	}
+	const entryPrice = entryPriceResult.value;
 
-	const symbolFormatted = store.L_symbol.includes("-")
-		? store.L_symbol.toUpperCase()
-		: `${store.L_symbol.toUpperCase()}-USDT`;
+	const contracts = Number(L1.value) || (Number(store.L2 || 10) * Number(store.L4 || 25)) / entryPrice;
+	if (!Number.isFinite(contracts) || contracts <= 0) {
+		alert("Не удалось рассчитать корректное количество контрактов. Проверьте цену, риск и плечо.");
+		return;
+	}
+	const quantity = contracts.toFixed(3);
+	if (Number(quantity) <= 0) {
+		alert("Рассчитанное количество контрактов меньше минимально поддерживаемого значения.");
+		return;
+	}
 
+	const symbolFormatted = symbol.includes("-")
+		? symbol.toUpperCase()
+		: `${symbol.toUpperCase()}-USDT`;
+
+	// Формируем параметры лимитного ордера
 	const orderParams = {
 		symbol: symbolFormatted,
 		side: "BUY",
-		price: store.L6,
-		quantity: Number(contracts).toFixed(3)
+		price: entryPrice,
+		quantity
 	};
 
-	console.log("Sending order to BingX (payload):", orderParams);
+	// Если задан уровень Stop Loss (store.L7), встраиваем его внутрь параметров лимитки
+	const hasStopLoss = String(store.L7 ?? "").trim() !== "";
+	if (hasStopLoss) {
+		const stopPriceResult = parsePositiveNumber(store.L7, "Stop Loss");
+		if (stopPriceResult.error) {
+			alert(stopPriceResult.error);
+			return;
+		}
+		if (stopPriceResult.value >= entryPrice) {
+			alert("Для длинной позиции Stop Loss должен быть ниже цены входа.");
+			return;
+		}
+		orderParams.stopLoss = {
+			stopPrice: stopPriceResult.value
+		};
+	}
+
 	const res = await sendOrderToBingx(orderParams);
 
 	if (res.success) {
-		console.log("Order placed successfully:", res.data);
-		alert("Ордер успешно размещен на BingX!");
+		if (hasStopLoss) {
+			alert("Лимитный ордер со встроенным Stop Loss успешно размещен на BingX! 🛡️");
+		} else {
+			alert("Лимитный ордер успешно размещен на BingX (без Stop Loss)!");
+		}
 	} else {
-		console.error("BingX error code:", res.bingxCode, res.error);
 		alert(`Ошибка BingX [${res.bingxCode}]: ${res.error}`);
 	}
 }
 
 async function sendArchive() {
-	console.log("Archive trade:", longMessage.value);
-	// later: save to local DB / Netlify DB
+	// Archive logic
 }
 </script>
 
@@ -90,7 +141,7 @@ async function sendArchive() {
 				</button>
 
 				<!-- BingX -->
-				<button @click="sendBingx" class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
+				<button @click="sendBingx" :disabled="isBingxLoading" class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
 					<img src="/logo/bingx.png" alt="BingX" class="w-6 h-6 object-contain" />
 				</button>
 
@@ -143,7 +194,7 @@ async function sendArchive() {
 
 				<!-- SL -->
 				<div class="relative">
-					<input v-model.number="store.L7" type="number" placeholder="SL" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-red-400 pr-8
+					<input :value="store.L7" @input="handleStopLossInput" type="text" inputmode="decimal" placeholder="SL" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-red-400 pr-8
                    focus:outline-none focus:ring-2 focus:ring-red-500"
 						:class="longErrors.L7 ? 'border-red-500' : 'border-gray-600'" />
 					<button v-if="store.L7" @click="store.L7 = ''"
@@ -195,12 +246,9 @@ async function sendArchive() {
 
 		<!-- Chart fills remaining space -->
 		<div class="flex-1 min-h-0 mb-12 mt-2">
-			<TradingViewChart 
-				v-if="confirmedLongSymbol"
-				:key="confirmedLongSymbol" 
-				:symbol="`BINGX:${confirmedLongSymbol}USDT.P`"
-				class="w-full h-full" />
-		</div><!-- TradingView Chart -->
+			<TradingViewChart v-if="confirmedLongSymbol" :key="confirmedLongSymbol"
+				:symbol="`BINGX:${confirmedLongSymbol}USDT.P`" class="w-full h-full" />
+		</div>
 	</div>
 </template>
 <style scoped></style>

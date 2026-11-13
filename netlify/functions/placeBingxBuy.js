@@ -1,4 +1,4 @@
-// netlify/functions/placeBingxOrder.js
+// netlify/functions/placeBingxBuy.js
 import {createHmac} from "node:crypto";
 
 const BINGX_ORDER_URL =
@@ -10,6 +10,19 @@ function jsonResponse(statusCode, body) {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(body)
   };
+}
+
+function parsePositiveNumber(value) {
+  if (
+    (typeof value !== "number" && typeof value !== "string") ||
+    (typeof value === "string" &&
+      !/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(value.trim()))
+  ) {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
 }
 
 export async function handler(event) {
@@ -37,22 +50,44 @@ export async function handler(event) {
       });
     }
 
-    const {symbol, side, price, quantity} = requestData;
+    if (!requestData || typeof requestData !== "object" || Array.isArray(requestData)) {
+      return jsonResponse(400, {error: "Request body must be a JSON object"});
+    }
 
-    if (!symbol || !side || !price || !quantity) {
+    const {symbol, side, price, quantity, stopLoss} = requestData;
+
+    if (
+      typeof symbol !== "string" ||
+      !symbol.trim() ||
+      typeof side !== "string" ||
+      !["BUY", "SELL"].includes(side) ||
+      parsePositiveNumber(price) === null ||
+      parsePositiveNumber(quantity) === null
+    ) {
       return jsonResponse(400, {
-        error:
-          "Missing required order parameters (symbol, side, price, quantity)"
+        error: "Order requires a valid symbol, side, positive price, and positive quantity"
       });
+    }
+
+    let validatedStopLoss = null;
+    if (stopLoss !== undefined) {
+      if (!stopLoss || typeof stopLoss !== "object" || Array.isArray(stopLoss)) {
+        return jsonResponse(400, {error: "Stop Loss must be an object with a positive stopPrice"});
+      }
+
+      const stopPrice = parsePositiveNumber(stopLoss.stopPrice);
+      if (stopPrice === null) {
+        return jsonResponse(400, {error: "Stop Loss stopPrice must be a valid positive number"});
+      }
+      validatedStopLoss = {stopPrice};
     }
 
     const timestamp = Date.now();
 
-    // Формируем объект параметров точно по спецификации BingX API
     const paramsObj = {
       symbol: String(symbol),
-      side: String(side), // BUY или SELL
-      positionSide: "BOTH", // Возвращаем positionSide, требуемый API
+      side: String(side),
+      positionSide: "BOTH",
       type: "LIMIT",
       price: String(price),
       quantity: String(quantity),
@@ -60,7 +95,15 @@ export async function handler(event) {
       timestamp: String(timestamp)
     };
 
-    // 1. Сортировка ключей для подписи (БЕЗ URL-encode, как в официальном примере)
+    if (validatedStopLoss) {
+      const slPayload = {
+        type: "STOP_MARKET",
+        stopPrice: validatedStopLoss.stopPrice,
+        price: 0
+      };
+      paramsObj.stopLoss = JSON.stringify(slPayload);
+    }
+
     const sortedKeys = Object.keys(paramsObj).sort();
     let signString = "";
     for (let i = 0; i < sortedKeys.length; i++) {
@@ -72,7 +115,6 @@ export async function handler(event) {
       .update(signString)
       .digest("hex");
 
-    // 2. Формирование параметров для URL (С URL-encode)
     let encodedParams = "";
     for (let i = 0; i < sortedKeys.length; i++) {
       if (i > 0) encodedParams += "&";
@@ -86,9 +128,7 @@ export async function handler(event) {
     try {
       response = await fetch(url, {
         method: "POST",
-        headers: {
-          "X-BX-APIKEY": apiKey
-        }
+        headers: {"X-BX-APIKEY": apiKey}
       });
     } catch (fetchErr) {
       return jsonResponse(502, {
@@ -120,7 +160,6 @@ export async function handler(event) {
       receivedAt: new Date().toISOString()
     });
   } catch (err) {
-    console.error("Unhandled error in placeBingxOrder function:", err);
     return jsonResponse(500, {
       success: false,
       error: "Internal server error in Netlify function",
