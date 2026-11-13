@@ -12,7 +12,7 @@ export function useBingxOrder() {
     lastResult.value = null;
 
     try {
-      const response = await fetch("/.netlify/functions/placeBingxBuy", {
+      const response = await fetch(`/.netlify/functions/placeBingxBuy`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(orderParams)
@@ -22,14 +22,21 @@ export function useBingxOrder() {
       try {
         data = await response.json();
       } catch {
-        const message = `BingX function returned an invalid response (HTTP ${response.status})`;
+        const message = `placeBingxBuy returned an invalid response (HTTP ${response.status})`;
         error.value = message;
         return {success: false, bingxCode: "INVALID_RESPONSE", error: message};
       }
 
-      if (!data || typeof data !== "object" || !response.ok || data.success !== true) {
+      if (
+        !data ||
+        typeof data !== "object" ||
+        !response.ok ||
+        data.success !== true
+      ) {
         const message =
-          data?.error || data?.bingxMsg || `Failed to place order on BingX (HTTP ${response.status})`;
+          data?.error ||
+          data?.bingxMsg ||
+          `Failed to execute placeBingxBuy (HTTP ${response.status})`;
         error.value = message;
         return {
           success: false,
@@ -41,7 +48,10 @@ export function useBingxOrder() {
       lastResult.value = data.data;
       return {success: true, data: data.data};
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Network error while placing order";
+      const message =
+        err instanceof Error
+          ? err.message
+          : `Network error while executing placeBingxBuy`;
       error.value = message;
       return {success: false, bingxCode: "NET_ERR", error: message};
     } finally {

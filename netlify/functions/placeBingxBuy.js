@@ -50,11 +50,15 @@ export async function handler(event) {
       });
     }
 
-    if (!requestData || typeof requestData !== "object" || Array.isArray(requestData)) {
+    if (
+      !requestData ||
+      typeof requestData !== "object" ||
+      Array.isArray(requestData)
+    ) {
       return jsonResponse(400, {error: "Request body must be a JSON object"});
     }
 
-    const {symbol, side, price, quantity, stopLoss} = requestData;
+    const {symbol, side, price, quantity, stopLoss, takeProfit} = requestData;
 
     if (
       typeof symbol !== "string" ||
@@ -65,21 +69,31 @@ export async function handler(event) {
       parsePositiveNumber(quantity) === null
     ) {
       return jsonResponse(400, {
-        error: "Order requires a valid symbol, side, positive price, and positive quantity"
+        error:
+          "Order requires a valid symbol, side, positive price, and positive quantity"
       });
     }
 
     let validatedStopLoss = null;
-    if (stopLoss !== undefined) {
-      if (!stopLoss || typeof stopLoss !== "object" || Array.isArray(stopLoss)) {
-        return jsonResponse(400, {error: "Stop Loss must be an object with a positive stopPrice"});
-      }
-
+    if (stopLoss !== undefined && stopLoss !== null) {
       const stopPrice = parsePositiveNumber(stopLoss.stopPrice);
       if (stopPrice === null) {
-        return jsonResponse(400, {error: "Stop Loss stopPrice must be a valid positive number"});
+        return jsonResponse(400, {
+          error: "Stop Loss stopPrice must be a valid positive number"
+        });
       }
       validatedStopLoss = {stopPrice};
+    }
+
+    let validatedTakeProfit = null;
+    if (takeProfit !== undefined && takeProfit !== null) {
+      const stopPrice = parsePositiveNumber(takeProfit.stopPrice);
+      if (stopPrice === null) {
+        return jsonResponse(400, {
+          error: "Take Profit stopPrice must be a valid positive number"
+        });
+      }
+      validatedTakeProfit = {stopPrice};
     }
 
     const timestamp = Date.now();
@@ -96,12 +110,19 @@ export async function handler(event) {
     };
 
     if (validatedStopLoss) {
-      const slPayload = {
+      paramsObj.stopLoss = JSON.stringify({
         type: "STOP_MARKET",
-        stopPrice: validatedStopLoss.stopPrice,
+        stopPrice: Number(validatedStopLoss.stopPrice),
         price: 0
-      };
-      paramsObj.stopLoss = JSON.stringify(slPayload);
+      });
+    }
+
+    if (validatedTakeProfit) {
+      paramsObj.takeProfit = JSON.stringify({
+        type: "TAKE_PROFIT_MARKET",
+        stopPrice: Number(validatedTakeProfit.stopPrice),
+        price: 0
+      });
     }
 
     const sortedKeys = Object.keys(paramsObj).sort();

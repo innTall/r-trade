@@ -17,6 +17,7 @@ function confirmLongSymbol() {
 
 const { L1, L2, L3, L5, L10, L11, L12, L13, L14, longMessage, longErrors, a4 } = useTradeCalc();
 
+// Нормализация запятой в точку для Stop Loss
 function handleStopLossInput(event) {
 	const input = event.target;
 	const value = input.value;
@@ -25,6 +26,17 @@ function handleStopLossInput(event) {
 		: value;
 	input.value = normalized;
 	store.L7 = normalized;
+}
+
+// Нормализация запятой в точку для TP2 (смартфоны)
+function handleTP2Input(event) {
+	const input = event.target;
+	const value = input.value;
+	const normalized = value.includes(",") && !value.includes(".") && value.indexOf(",") === value.lastIndexOf(",")
+		? value.replace(",", ".")
+		: value;
+	input.value = normalized;
+	store.L9 = normalized;
 }
 
 function parsePositiveNumber(value, label) {
@@ -86,7 +98,7 @@ async function sendBingx() {
 		? symbol.toUpperCase()
 		: `${symbol.toUpperCase()}-USDT`;
 
-	// Формируем параметры лимитного ордера
+	// Базовые параметры ордера
 	const orderParams = {
 		symbol: symbolFormatted,
 		side: "BUY",
@@ -94,7 +106,9 @@ async function sendBingx() {
 		quantity
 	};
 
-	// Если задан уровень Stop Loss (store.L7), встраиваем его внутрь параметров лимитки
+	let successParts = ["Лимитный ордер"];
+
+	// Встраиваем Stop Loss (store.L7), если задан
 	const hasStopLoss = String(store.L7 ?? "").trim() !== "";
 	if (hasStopLoss) {
 		const stopPriceResult = parsePositiveNumber(store.L7, "Stop Loss");
@@ -109,16 +123,32 @@ async function sendBingx() {
 		orderParams.stopLoss = {
 			stopPrice: stopPriceResult.value
 		};
+		successParts.push("Stop Loss");
 	}
 
+	// Встраиваем TP2 / Entire Position (store.L9), если задан
+	const hasTP2 = String(store.L9 ?? "").trim() !== "";
+	if (hasTP2) {
+		const tp2PriceResult = parsePositiveNumber(store.L9, "TP2");
+		if (tp2PriceResult.error) {
+			alert(tp2PriceResult.error);
+			return;
+		}
+		if (tp2PriceResult.value <= entryPrice) {
+			alert("Для длинной позиции TP2 должен быть выше цены входа.");
+			return;
+		}
+		orderParams.takeProfit = {
+			stopPrice: tp2PriceResult.value
+		};
+		successParts.push("TP2");
+	}
+
+	// Отправляем всё одним атомарным запросом
 	const res = await sendOrderToBingx(orderParams);
 
 	if (res.success) {
-		if (hasStopLoss) {
-			alert("Лимитный ордер со встроенным Stop Loss успешно размещен на BingX! 🛡️");
-		} else {
-			alert("Лимитный ордер успешно размещен на BingX (без Stop Loss)!");
-		}
+		alert(`${successParts.join(" + ")} успешно размещены на BingX за один запрос! 🚀`);
 	} else {
 		alert(`Ошибка BingX [${res.bingxCode}]: ${res.error}`);
 	}
@@ -141,7 +171,8 @@ async function sendArchive() {
 				</button>
 
 				<!-- BingX -->
-				<button @click="sendBingx" :disabled="isBingxLoading" class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
+				<button @click="sendBingx" :disabled="isBingxLoading"
+					class="w-6 h-6 disabled:cursor-not-allowed disabled:opacity-40">
 					<img src="/logo/bingx.png" alt="BingX" class="w-6 h-6 object-contain" />
 				</button>
 
@@ -160,9 +191,9 @@ async function sendArchive() {
 		<div class="grid grid-cols-2 gap-4">
 			<!-- Left column -->
 			<div class="space-y-2">
-				<!-- TP2 -->
+				<!-- TP2 (Защищено от мобильных запятых) -->
 				<div class="relative">
-					<input v-model.number="store.L9" type="number" placeholder="TP2" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-green-400 pr-8
+					<input v-model.number="store.L9" @input="handleTP2Input" type="number" placeholder="TP2" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-green-400 pr-8
                    focus:outline-none focus:ring-2 focus:ring-green-500"
 						:class="longErrors.L9 ? 'border-red-500' : 'border-gray-600'" />
 					<button v-if="store.L9" @click="store.L9 = ''"
@@ -192,9 +223,9 @@ async function sendArchive() {
 					</button>
 				</div>
 
-				<!-- SL -->
+				<!-- SL (Защищено от мобильных запятых) -->
 				<div class="relative">
-					<input :value="store.L7" @input="handleStopLossInput" type="text" inputmode="decimal" placeholder="SL" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-red-400 pr-8
+					<input v-model.number="store.L7" @input="handleStopLossInput" type="number" placeholder="SL" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-red-400 pr-8
                    focus:outline-none focus:ring-2 focus:ring-red-500"
 						:class="longErrors.L7 ? 'border-red-500' : 'border-gray-600'" />
 					<button v-if="store.L7" @click="store.L7 = ''"
