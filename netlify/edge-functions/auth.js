@@ -1,10 +1,23 @@
 // netlify/edge-functions/auth.js
 export default async (request, context) => {
-  const authHeader = request.headers.get("authorization");
+  const url = new URL(request.url);
+  const path = url.pathname;
 
-  // Читаем логин и пароль из защищенных переменных окружения Netlify
-  const USER = Netlify.env.get("BASIC_AUTH_USER") || "admin";
-  const PASS = Netlify.env.get("BASIC_AUTH_PASS") || "secret";
+  // Пропускаем без пароля файлы манифеста, иконки и сервис-воркер,
+  // чтобы телефон мог корректно установить PWA на экран
+  if (
+    path.endsWith("/manifest.json") ||
+    path.endsWith("/favicon.ico") ||
+    path.endsWith("/sw.js") ||
+    path.startsWith("/icons/") ||
+    path.startsWith("/img/")
+  ) {
+    return context.next();
+  }
+
+  const authHeader = request.headers.get("authorization");
+  const USER = Netlify.env.get("BASIC_AUTH_USER") || "abc";
+  const PASS = Netlify.env.get("BASIC_AUTH_PASS") || "123456";
 
   if (authHeader) {
     try {
@@ -13,14 +26,14 @@ export default async (request, context) => {
       const [user, pass] = decodedValue.split(":");
 
       if (user === USER && pass === PASS) {
-        return context.next(); // Пропускаем пользователя дальше на сайт
+        return context.next(); // Пропускаем пользователя дальше
       }
     } catch (e) {
       // Игнорируем некорректный заголовок
     }
   }
 
-  // Если пароля нет или он неверный — запрашиваем авторизацию
+  // Запрос пароля для всего остального интерфейса
   return new Response("Auth required", {
     status: 401,
     headers: {
