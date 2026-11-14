@@ -70,22 +70,37 @@ async function sendBingx() {
 		alert("Не удалось рассчитать корректное количество контрактов. Проверьте цену, риск и плечо.");
 		return;
 	}
-	const quantity = contracts.toFixed(3);
+
+	// Точность округления объема из спецификаций контракта (по умолчанию 3)
+	const precision = store.contractSpecs?.quantityPrecision ?? 3;
+	const quantity = contracts.toFixed(precision);
 	if (Number(quantity) <= 0) {
 		alert("Рассчитанное количество контрактов меньше минимально поддерживаемого значения.");
 		return;
 	}
 
+	// Расчет разделенных объемов TP1 и остатка (remQty) на основе fixTp1 (например, 50%)
+	const tp1Percentage = Number(store.fixTp1 ?? 50) / 100;
+	const tp1QtyVal = contracts * tp1Percentage;
+	const remQtyVal = contracts - tp1QtyVal;
+
+	const tp1Qty = tp1QtyVal.toFixed(precision);
+	const remQty = remQtyVal.toFixed(precision);
+
 	const symbolFormatted = symbol.includes("-")
 		? symbol.toUpperCase()
 		: `${symbol.toUpperCase()}-USDT`;
 
-	// Базовые параметры ордера
+	// Формируем расширенный пакет параметров для отправки на бэкенд
 	const orderParams = {
 		symbol: symbolFormatted,
 		side: "BUY",
 		price: entryPrice,
-		quantity
+		quantity,       // Общий объем (totalQty)
+		tp1Qty,         // Объем для TP1 (например, 50%)
+		remQty,         // Остаток объема для TP2
+		tp1Price: store.L8 ? Number(store.L8) : null,
+		tp2Price: store.L9 ? Number(store.L9) : null
 	};
 
 	let successParts = ["Лимитный ордер"];
@@ -131,6 +146,7 @@ async function sendBingx() {
 
 	if (res.success) {
 		alert(`${successParts.join(" + ")} успешно размещены на BingX за один запрос! 🚀`);
+		console.log("Split details sent:", { tp1Qty, remQty });
 	} else {
 		alert(`Ошибка BingX [${res.bingxCode}]: ${res.error}`);
 	}
