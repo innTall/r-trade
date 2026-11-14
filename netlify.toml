@@ -9,3 +9,8 @@
   targetPort = 5173
   framework = "#custom"
   # netlify dev will pick up functions from netlify/functions
+
+[[edge_functions]]
+  path = "/*"
+  excludedPath = "/.netlify/*"
+  function = "auth"
