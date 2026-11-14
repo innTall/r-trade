@@ -17,28 +17,6 @@ function confirmLongSymbol() {
 
 const { L1, L2, L3, L5, L10, L11, L12, L13, L14, longMessage, longErrors, a4 } = useTradeCalc();
 
-// Нормализация запятой в точку для Stop Loss
-function handleStopLossInput(event) {
-	const input = event.target;
-	const value = input.value;
-	const normalized = value.includes(",") && !value.includes(".") && value.indexOf(",") === value.lastIndexOf(",")
-		? value.replace(",", ".")
-		: value;
-	input.value = normalized;
-	store.L7 = normalized;
-}
-
-// Нормализация запятой в точку для TP2 (смартфоны)
-function handleTP2Input(event) {
-	const input = event.target;
-	const value = input.value;
-	const normalized = value.includes(",") && !value.includes(".") && value.indexOf(",") === value.lastIndexOf(",")
-		? value.replace(",", ".")
-		: value;
-	input.value = normalized;
-	store.L9 = normalized;
-}
-
 function parsePositiveNumber(value, label) {
 	const text = String(value ?? "").trim();
 	if (!/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(text)) {
@@ -193,7 +171,7 @@ async function sendArchive() {
 			<div class="space-y-2">
 				<!-- TP2 (Защищено от мобильных запятых) -->
 				<div class="relative">
-					<input v-model.number="store.L9" @input="handleTP2Input" type="number" placeholder="TP2" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-green-400 pr-8
+					<input v-model.number="store.L9" type="number" placeholder="TP2" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-green-400 pr-8
                    focus:outline-none focus:ring-2 focus:ring-green-500"
 						:class="longErrors.L9 ? 'border-red-500' : 'border-gray-600'" />
 					<button v-if="store.L9" @click="store.L9 = ''"
@@ -225,7 +203,7 @@ async function sendArchive() {
 
 				<!-- SL (Защищено от мобильных запятых) -->
 				<div class="relative">
-					<input v-model.number="store.L7" @input="handleStopLossInput" type="number" placeholder="SL" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-red-400 pr-8
+					<input v-model.number="store.L7" type="number" placeholder="SL" class="w-full rounded-md bg-gray-800 border px-3 py-2 text-red-400 pr-8
                    focus:outline-none focus:ring-2 focus:ring-red-500"
 						:class="longErrors.L7 ? 'border-red-500' : 'border-gray-600'" />
 					<button v-if="store.L7" @click="store.L7 = ''"
