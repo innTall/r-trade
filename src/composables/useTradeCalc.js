@@ -70,6 +70,7 @@ export function useTradeCalc() {
   // Validation rules (Long)
   const longErrors = computed(() => {
     const errors = {};
+    if (store.L4 > store.contractSpecs.maxLeverage) errors.L4 = true;
     if (store.L7 >= store.L6) errors.L7 = true;
     if (store.L8 <= store.L6) errors.L8 = true;
     if (store.L9 <= store.L6) errors.L9 = true;

@@ -11,8 +11,12 @@ const store = useTradeStore();
 const { isLoading: isBingxLoading, sendOrderToBingx } = useBingxOrder();
 
 const confirmedLongSymbol = ref("");
-function confirmLongSymbol() {
+async function confirmLongSymbol() {
 	confirmedLongSymbol.value = store.L_symbol;
+	if (store.L_symbol) {
+		// Подтягиваем precision и minQty для выбранного символа
+		await store.fetchContractSpecs(store.L_symbol);
+	}
 }
 
 const { L1, L2, L3, L5, L10, L11, L12, L13, L14, longMessage, longErrors, a4 } = useTradeCalc();

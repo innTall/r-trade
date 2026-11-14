@@ -16,6 +16,33 @@ export const useTradeStore = defineStore(
     );
     const a2 = ref(1); // Risk %
 
+    // --- Contract Specs (loaded from BingX) ---
+    const contractSpecs = ref({
+      quantityPrecision: 3, // дефолтные значения на случай сбоя сети
+      pricePrecision: 2,
+      tradeMinQuantity: 0.001,
+      maxLeverage: 125
+    });
+
+    // Экшен для получения спецификаций контракта
+    async function fetchContractSpecs(symbol) {
+      try {
+        console.log(`[Store] Fetching contract specs for symbol: ${symbol}`);
+        const response = `/.netlify/functions/getContractSpecs?symbol=${encodeURIComponent(symbol)}`;
+        const res = await fetch(response);
+        const data = await res.json();
+
+        if (res.ok) {
+          contractSpecs.value = data;
+          console.log(`[Store] Contract specs loaded successfully:`, data);
+        } else {
+          console.warn(`[Store] Failed to load specs, using defaults:`, data);
+        }
+      } catch (error) {
+        console.error(`[Store] Error fetching contract specs:`, error);
+      }
+    }
+
     // --- Long trade inputs ---
     const L_symbol = ref("BTC");
     const L4 = ref(25); // Leverage
@@ -42,6 +69,8 @@ export const useTradeStore = defineStore(
       balance,
       effectiveCalculationBalance,
       a2,
+      contractSpecs,
+      fetchContractSpecs,
       L_symbol,
       L4,
       L6,
