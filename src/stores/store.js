@@ -15,6 +15,8 @@ export const useTradeStore = defineStore(
         : DEFAULT_CALCULATION_BALANCE
     );
     const a2 = ref(1); // Risk %
+    const beDiff = ref(0.2); // BE Diff %
+    const fixTp1 = ref(50); // fix for TP1
 
     // --- Contract Specs (loaded from BingX) ---
     const contractSpecs = ref({
@@ -61,14 +63,13 @@ export const useTradeStore = defineStore(
     const S9 = ref(107500); // TP2
     const S_comment = ref(""); // custom comment for Short
 
-    // fixation settings (default 50)
-    const fixTp1 = ref(50); // fix for TP1
-
     // ✅ Must return a single object
     return {
       balance,
       effectiveCalculationBalance,
       a2,
+      beDiff,
+      fixTp1,
       contractSpecs,
       fetchContractSpecs,
       L_symbol,
@@ -85,7 +86,6 @@ export const useTradeStore = defineStore(
       S8,
       S9,
       S_comment,
-      fixTp1
     };
   },
   {

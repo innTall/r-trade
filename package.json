@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
+    "@netlify/functions": "^6.1.1",
     "date-fns": "^4.1.0",
     "lightweight-charts": "^4.2.2",
     "netlify-cli": "^23.5.1",

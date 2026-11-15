@@ -39,6 +39,11 @@ const emit = defineEmits(["close"]);
 					<input v-model.number="store.fixTp1" type="number" placeholder="Fix %"
 						class="w-24 bg-gray-800 input-cell flex-1" />
 				</div>
+				<div class="flex items-center gap-2">
+					<label class="w-24 text-sm text-gray-300">BE Diff, %</label>
+					<input v-model.number="store.beDiff" type="number" step="0.1" placeholder="BE %"
+						class="w-24 bg-gray-800 input-cell flex-1" />
+				</div>
 
 				<div class="flex text-sm pt-2 gap-2 border-t border-gray-700">
 					<span class="text-red-400">SL, $:</span>

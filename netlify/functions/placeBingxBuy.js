@@ -58,7 +58,6 @@ export async function handler(event) {
       return jsonResponse(400, {error: "Request body must be a JSON object"});
     }
 
-    // Принимаем базовые параметры и разделенные объемы TP1 / Remainder
     const {
       symbol,
       side,
@@ -69,7 +68,8 @@ export async function handler(event) {
       tp1Price,
       tp2Price,
       stopLoss,
-      takeProfit
+      takeProfit,
+      beDiff
     } = requestData;
 
     if (
@@ -84,14 +84,6 @@ export async function handler(event) {
         error:
           "Order requires a valid symbol, side, positive price, and positive quantity"
       });
-    }
-
-    // Валидация разделенных объемов (если переданы)
-    if (tp1Qty !== undefined && parsePositiveNumber(tp1Qty) === null) {
-      return jsonResponse(400, {error: "Invalid tp1Qty value"});
-    }
-    if (remQty !== undefined && parsePositiveNumber(remQty) === null) {
-      return jsonResponse(400, {error: "Invalid remQty value"});
     }
 
     let validatedStopLoss = null;
@@ -124,10 +116,16 @@ export async function handler(event) {
       positionSide: "BOTH",
       type: "LIMIT",
       price: String(price),
-      quantity: String(quantity), // Общий объем (totalQty)
+      quantity: String(quantity),
       timeInForce: "GTC",
       timestamp: String(timestamp)
     };
+
+    // Кодируем параметры TP1 в clientOrderId, чтобы бот мог их прочитать после активации позиции
+    if (tp1Price && tp1Qty) {
+      const currentBeDiff = beDiff !== undefined ? beDiff : 0.2;
+      paramsObj.clientOrderId = `TP1_${tp1Price}_${tp1Qty}_${currentBeDiff}`;
+    }
 
     if (validatedStopLoss) {
       paramsObj.stopLoss = JSON.stringify({
@@ -198,12 +196,6 @@ export async function handler(event) {
     return jsonResponse(200, {
       success: true,
       data: result.data,
-      splitDetails: {
-        tp1Qty: tp1Qty || null,
-        remQty: remQty || null,
-        tp1Price: tp1Price || null,
-        tp2Price: tp2Price || null
-      },
       receivedAt: new Date().toISOString()
     });
   } catch (err) {
