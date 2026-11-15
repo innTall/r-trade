@@ -1,5 +1,4 @@
 // netlify/functions/checkPositions.js
-import {schedule} from "@netlify/functions";
 import {createHmac} from "node:crypto";
 
 const BINGX_BASE_URL = "https://open-api.bingx.com";

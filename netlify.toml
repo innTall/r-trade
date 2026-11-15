@@ -14,3 +14,11 @@
   path = "/*"
   excludedPath = "/.netlify/*"
   function = "auth"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Указываем расписание для checkPositions прямо в конфиге Netlify
+[functions."checkPositions"]
+  schedule = "* * * * *"
