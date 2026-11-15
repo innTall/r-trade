@@ -37,7 +37,7 @@ async function bingxRequest(endpoint, method, apiKey, secretKey, data = {}) {
   return await response.json();
 }
 
-export const handler = schedule("*****", async (event) => {
+export const handler = schedule("* * * * *", async (event) => {
   const apiKey = process.env.BINGX_API_KEY;
   const secretKey = process.env.BINGX_API_SECRET;
 
