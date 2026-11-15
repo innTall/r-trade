@@ -195,7 +195,6 @@ export function useTradeCalc() {
   );
 
   const shortErrors = computed(() => {
-    comm;
     const errors = {};
     if (store.S4 > store.contractSpecs?.maxLeverage) errors.S4 = true;
     if (store.S7 <= store.S6) errors.S7 = true;
